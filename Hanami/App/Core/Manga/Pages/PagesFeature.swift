@@ -50,9 +50,7 @@ struct PagesFeature {
                         )
                     }
                 }
-                
-                volumesOnPage.reverse()
-                
+                                
                 splitIntoPagesVolumeTabStates.append(
                     volumesOnPage
                         .map { VolumeTabFeature.State(volume: $0, parentManga: manga, online: online) }
@@ -76,16 +74,12 @@ struct PagesFeature {
             
             // splitting chapters into arrays according to 'chapter.attributes.volumeIndex'
             for chapterDetails in chaptersDetailsList {
-                if volumesDict[chapterDetails.attributes.volumeIndex].isNil {
-                    volumesDict[chapterDetails.attributes.volumeIndex] = [chapterDetails]
-                } else {
-                    volumesDict[chapterDetails.attributes.volumeIndex]!.append(chapterDetails)
-                }
+                volumesDict[chapterDetails.attributes.volumeIndex, default: []].append(chapterDetails)
             }
             
             // storing chapters from previous step in arrays to be able to sort
             // them by 'chapter.attributes.volumeIndex'
-            var volumes: [(volume: MangaVolume, chapters: [ChapterDetails])] = []
+            var volumes: [MangaVolume] = []
             
             for volumeIndex in volumesDict.keys {
                 let volume = volumesDict[volumeIndex]!
@@ -94,61 +88,42 @@ struct PagesFeature {
                 var cachedChapterDetails: [Double?: [ChapterDetails]] = [:]
                 
                 for chapter in volume {
-                    if cachedChapterDetails[chapter.attributes.index].hasValue {
-                        cachedChapterDetails[chapter.attributes.index]!.append(chapter)
-                    } else {
-                        cachedChapterDetails[chapter.attributes.index] = [chapter]
-                    }
+                    cachedChapterDetails[chapter.attributes.index, default: []].append(chapter)
                 }
                 
                 // sorting chapters desc by 'volumeIndex'
-                let cachedChaptersAsList = cachedChapterDetails.map(\.value).sorted { lhs, rhs in
+                let cachedChaptersLists = cachedChapterDetails.map(\.value).sorted { lhs, rhs in
                     // all chapters in each array are having the same 'volumeIndex'
                     (lhs.first!.attributes.volumeIndex ?? .infinity) < (rhs.first!.attributes.volumeIndex ?? .infinity)
                 }
                 
                 // 'Chapter' - it's simplified and compressed version of 'ChapterDetails'
                 // it has only volumeIndex and IDs of all translations(scanlation group) of chapter
-                var chapters: [Chapter] = []
-                
-                for chapterList in cachedChaptersAsList {
+                var chapters = cachedChaptersLists.map { chapterList in
                     // here it doesn't matter which chapter ID will be set to "main" id (Chapter.id)
                     // and which to 'other'
                     var chapterList = chapterList
-                    let chapter = chapterList.last!.asChapter
-                    _ = chapterList.popLast()
-                    
-                    chapters.append(
-                        Chapter(
-                            index: chapter.index,
-                            id: chapter.id,
-                            others: chapterList.map(\.id)
-                        )
+                    let mainChapter = chapterList.removeLast().asChapter
+                    return Chapter(
+                        index: mainChapter.index,
+                        id: mainChapter.id,
+                        others: chapterList.map(\.id)
                     )
-                }
+                }.sorted { ($0.index ?? -1) > ($1.index ?? -1) }
                 
-                // almost alway chapter has 'chapterIndex'
-                // if not, most likely it's oneshot or sth, that should be at the beginning(in our pagination = in the end)
-                chapters.sort { ($0.index ?? -1) > ($1.index ?? -1) }
-                
-                volumes.append((
-                    volume: MangaVolume(chapters: chapters, volumeIndex: volumeIndex),
-                    chapters: chaptersDetailsList.filter { chapterDetails in
-                        chapters.contains { $0.id == chapterDetails.id }
-                    })
-                )
+                volumes.append(MangaVolume(chapters: chapters, volumeIndex: volumeIndex))
             }
             
             // sorting volmues by volumeIndex
             // typically the most fresh chapters stored in 'No Volume'(volumes w/o 'volumeIndex')
             // so we show this volume in the first place
-            volumes.sort { ($0.volume.volumeIndex ?? .infinity) > ($1.volume.volumeIndex ?? .infinity) }
+            volumes.sort { ($0.volumeIndex ?? .infinity) > ($1.volumeIndex ?? .infinity) }
             
-            // here we're shaped the data(volumes) as they were for online reading
+            // here we've shaped the data(volumes) as they were for online reading
             // and we can use another initializer
             self.init(
                 manga: manga,
-                mangaVolumes: volumes.map(\.volume),
+                mangaVolumes: volumes,
                 chaptersPerPage: chaptersPerPage,
                 online: false
             )

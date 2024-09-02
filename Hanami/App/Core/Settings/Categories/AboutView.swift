@@ -13,7 +13,7 @@ import Utils
 struct AboutView: View {
     @Environment(\.openURL) private var openURL
     @State private var userTappedOnCopyURL = false
-
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -23,7 +23,7 @@ struct AboutView: View {
                     Rectangle()
                         .foregroundColor(.theme.secondaryText)
                         .frame(height: 1.5)
-
+                    
                     description
                     
                     buttons
@@ -117,16 +117,9 @@ extension AboutView {
     }
     
     private var footer: some View {
-        VStack(spacing: 5) {
-            Text("From 🇩🇪 by 🇷🇺 with ❤️")
-                .foregroundColor(.theme.secondaryText)
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .center)
-            
-            Text("Version: \(AppUtil.version)")
-                .foregroundColor(.theme.secondaryText)
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .center)
-        }
+        Text("Version: \(AppUtil.version)")
+            .foregroundColor(.theme.secondaryText)
+            .font(.caption)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }

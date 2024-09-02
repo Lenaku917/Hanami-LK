@@ -134,8 +134,8 @@ struct SettingsFeature {
                 state.confirmationDialog = nil
                 return .none
                 
-            case .cachedMangaRetrieved(let cachedManga):
-                for entry in cachedManga {
+            case .cachedMangaRetrieved(let cachedMangas):
+                for entry in cachedMangas {
                     cacheClient.removeAllCachedChapterIDsFromMemory(for: entry.manga.id)
                 }
                 

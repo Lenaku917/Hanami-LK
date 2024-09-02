@@ -24,7 +24,6 @@ struct HomeView: View {
         let areLatestUpdatesFetched: Bool
         let areAwardWinningTitlesFetched: Bool
         let areMostFollowedTitlesFetched: Bool
-        let seasonalMangaTabName: String
         
         init(state: HomeFeature.State) {
             isRefreshActionInProgress = state.isRefreshActionInProgress
@@ -32,7 +31,6 @@ struct HomeView: View {
             areLatestUpdatesFetched = !state.latestUpdatesMangaThumbnailStates.isEmpty
             areAwardWinningTitlesFetched = !state.awardWinningMangaThumbnailStates.isEmpty
             areMostFollowedTitlesFetched = !state.mostFollowedMangaThumbnailStates.isEmpty
-            seasonalMangaTabName = state.seasonalTabName ?? "Seasonal"
         }
     }
     
@@ -228,7 +226,7 @@ extension HomeView {
                         }
                     }
                 }
-                .navigationTitle(viewStore.seasonalMangaTabName)
+                .navigationTitle("Seasonal")
                 .navigationBarBackButtonHidden(true)
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {

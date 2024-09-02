@@ -27,7 +27,6 @@ struct HomeFeature {
         var isRefreshActionInProgress = false
         var lastRefreshDate: Date?
         var seasonalMangaListID: UUID?
-        var seasonalTabName: String?
     }
     
     enum Action {
@@ -87,13 +86,6 @@ struct HomeFeature {
                 
                 state.isRefreshActionInProgress = true
                 state.lastRefreshDate = .now
-                
-                var fetchedMangaIDs: [UUID] = []
-                
-                fetchedMangaIDs.append(contentsOf: state.awardWinningMangaThumbnailStates.map(\.id))
-                fetchedMangaIDs.append(contentsOf: state.mostFollowedMangaThumbnailStates.map(\.id))
-                fetchedMangaIDs.append(contentsOf: state.latestUpdatesMangaThumbnailStates.map(\.id))
-                fetchedMangaIDs.append(contentsOf: state.seasonalMangaThumbnailStates.map(\.id))
                 
                 state.awardWinningMangaThumbnailStates.removeAll()
                 state.mostFollowedMangaThumbnailStates.removeAll()

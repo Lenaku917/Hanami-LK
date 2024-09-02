@@ -35,29 +35,26 @@ struct ChapterFeature {
         // swiftlint:disable:next identifier_name
         var _chapterDetailsList: [ChapterDetails] = [] {
             didSet {
-                // if all chapters fetched, this container is no longer needed
-                // so we put all chapterDetails in 'chapterDetailsList' and clear this one
+                // If all chapters fetched, this container is no longer needed
+                // So we put all chapterDetails in 'chapterDetailsList' and clear this one
                 if _chapterDetailsList.count == chaptersCount {
                     chapterDetailsList = _chapterDetailsList.sorted { lhs, rhs in
-                        // sort by lang and by ScanlationGroup's name
-                        if lhs.attributes.translatedLanguage == rhs.attributes.translatedLanguage,
-                           let lhsName = lhs.scanlationGroup?.name, let rhsName = rhs.scanlationGroup?.name {
-                            return lhsName < rhsName
-                        }
-                        
+                        // Sort by language and by ScanlationGroup's name
                         if let lhsLang = lhs.attributes.translatedLanguage,
                            let rhsLang = rhs.attributes.translatedLanguage {
+                            if lhsLang == rhsLang, let lhsName = lhs.scanlationGroup?.name, let rhsName = rhs.scanlationGroup?.name {
+                                return lhsName < rhsName
+                            }
                             return lhsLang < rhsLang
                         }
-                        
                         return false
-                    }
-                    .asIdentifiedArray
+                    }.asIdentifiedArray
                     
                     _chapterDetailsList = []
                 }
             }
         }
+        
         var chaptersCount: Int {
             // need this for offline reading
             // when user deletes chapter, `chapter.others.count` doesn't change himself, only `chapterDetailsList.count`
